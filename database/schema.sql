@@ -1,8 +1,7 @@
 -- Database Schema & Initial Data: Divisi Teknik Kepramukaan (Tekpram)
 -- Compatible with MySQL 5.7+ / 8.0+ / MariaDB
-
-CREATE DATABASE IF NOT EXISTS `tekpram_db` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `tekpram_db`;
+-- CATATAN: Untuk InfinityFree, buat database dulu lewat Control Panel,
+-- lalu pilih database itu di phpMyAdmin sebelum import file ini.
 
 -- 1. Tabel Users (Pengurus & Pembina)
 CREATE TABLE IF NOT EXISTS `users` (
