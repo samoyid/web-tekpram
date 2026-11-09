@@ -23,33 +23,43 @@ $db_port = defined('ENV_DB_PORT') ? ENV_DB_PORT : 3306;
 $pdo = null;
 $db_driver = 'mysql';
 
-// Coba hubungkan ke MySQL terlebih dahulu
+// Coba hubungkan ke MySQL langsung (kompatibel dengan hosting shared/InfinityFree)
 try {
-    // Hubungkan tanpa db_name terlebih dahulu untuk memastikan database dibuat jika belum ada
-    $dsn_server = "mysql:host={$db_host};port={$db_port};charset=utf8mb4";
-    $pdo_server = new PDO($dsn_server, $db_user, $db_pass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_TIMEOUT => 2
-    ]);
-    $pdo_server->exec("CREATE DATABASE IF NOT EXISTS `{$db_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;");
-    
-    // Hubungkan ke database tekpram_db
+    // Langsung koneksi ke database yang sudah ada (tidak CREATE DATABASE)
     $dsn = "mysql:host={$db_host};port={$db_port};dbname={$db_name};charset=utf8mb4";
     $pdo = new PDO($dsn, $db_user, $db_pass, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false
+        PDO::ATTR_EMULATE_PREPARES => false,
+        PDO::ATTR_TIMEOUT => 5
     ]);
     $db_driver = 'mysql';
 } catch (Exception $e) {
-    // Jika MySQL offline atau terblokir di sandbox, fallback otomatis ke SQLite lokal
-    $sqlite_file = __DIR__ . '/../database/tekpram.sqlite';
-    $dsn = "sqlite:" . $sqlite_file;
-    $pdo = new PDO($dsn, null, null, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-    ]);
-    $db_driver = 'sqlite';
+    // Jika koneksi langsung gagal, coba buat database dulu (mode lokal/dev)
+    try {
+        $dsn_server = "mysql:host={$db_host};port={$db_port};charset=utf8mb4";
+        $pdo_server = new PDO($dsn_server, $db_user, $db_pass, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_TIMEOUT => 2
+        ]);
+        $pdo_server->exec("CREATE DATABASE IF NOT EXISTS `{$db_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;");
+        $dsn = "mysql:host={$db_host};port={$db_port};dbname={$db_name};charset=utf8mb4";
+        $pdo = new PDO($dsn, $db_user, $db_pass, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false
+        ]);
+        $db_driver = 'mysql';
+    } catch (Exception $e2) {
+        // Fallback SQLite (dev/sandbox offline)
+        $sqlite_file = __DIR__ . '/../database/tekpram.sqlite';
+        $dsn = "sqlite:" . $sqlite_file;
+        $pdo = new PDO($dsn, null, null, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+        ]);
+        $db_driver = 'sqlite';
+    }
 }
 
 /**
