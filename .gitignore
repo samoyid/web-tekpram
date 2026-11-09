@@ -1,0 +1,37 @@
+# Dependencies & cache
+vendor/
+node_modules/
+.cache/
+
+# Database SQLite (tidak di-push, tiap install buat sendiri)
+database/tekpram.sqlite
+database/*.sqlite
+
+# File uploads (konten user, tidak di-push)
+uploads/arsip/*
+uploads/inventaris/*
+uploads/tutorial/*
+
+# Simpan folder structure-nya
+!uploads/arsip/.gitkeep
+!uploads/inventaris/.gitkeep
+!uploads/tutorial/.gitkeep
+
+# Environment & config sensitif
+.env
+config/local.php
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Log files
+*.log
+error_log
