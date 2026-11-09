@@ -19,6 +19,7 @@ uploads/tutorial/*
 
 # Environment & config sensitif
 .env
+config/env.php
 config/local.php
 
 # OS files

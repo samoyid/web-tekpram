@@ -8,11 +8,17 @@ if (session_status() === PHP_SESSION_NONE && php_sapi_name() !== 'cli') {
     @session_start();
 }
 
-$db_host = '127.0.0.1';
-$db_name = 'tekpram_db';
-$db_user = 'root';
-$db_pass = '';
-$db_port = 3306;
+// Load konfigurasi environment (kredensial hosting) jika ada
+$env_file = __DIR__ . '/env.php';
+if (file_exists($env_file)) {
+    require_once $env_file;
+}
+
+$db_host = defined('ENV_DB_HOST') ? ENV_DB_HOST : '127.0.0.1';
+$db_name = defined('ENV_DB_NAME') ? ENV_DB_NAME : 'tekpram_db';
+$db_user = defined('ENV_DB_USER') ? ENV_DB_USER : 'root';
+$db_pass = defined('ENV_DB_PASS') ? ENV_DB_PASS : '';
+$db_port = defined('ENV_DB_PORT') ? ENV_DB_PORT : 3306;
 
 $pdo = null;
 $db_driver = 'mysql';
